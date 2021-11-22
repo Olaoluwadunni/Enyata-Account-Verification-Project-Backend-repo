@@ -1,6 +1,6 @@
 const { userSignup, validatePassword, getUser } = require("../services")
+const axios = require('axios')
 const nodemailer = require('nodemailer')
-const transporter = require("../verification")
 
 
 const registerUser = async(req, res, next) => {
@@ -22,12 +22,12 @@ const registerUser = async(req, res, next) => {
 
         // send verification mail to user
         const mailOptions = {
-            from: ' "Verify your Email" <timmysmally@gmail.com>',
+            from: ' "Verify your Email" <aroyewontope@gmail.com>',
             to: user.email,
             subject: `Verify your email`,
-            html: `<h2>Dear ${user.firstname}, thank you for registering with us</h2>
-                <h4>Please verify your email by clicking on the link below...</h4>
-                <a href="http://localhost:8080/user-login"> Verify your email here </a>
+            html: `<h2>Dear ${user.firstname}, thank you for registering on our website</h2>
+                <h4>Please verify your email to continue...</h4>
+                <a href="http://localhost:8080/user-verified"> Click here to verify your email </a>
             `
         }
 
@@ -37,7 +37,7 @@ const registerUser = async(req, res, next) => {
             if (error) {
                 console.log(error)
             } else {
-                console.log('Verification email has been sent. Please check your email')
+                console.log('Verification email sent to your gmail')
             }
         })
 
@@ -50,6 +50,8 @@ const registerUser = async(req, res, next) => {
         return next(error)
     }
 }
+
+// user.isVerified = true
 
 const loginUser = async(req, res, next) => {
     try {
@@ -74,6 +76,30 @@ const loginUser = async(req, res, next) => {
     }
 }
 
+const verifyUserAccount = async (req, res) => {
+    try {
+        const { accountNumber, bankCode } = req.query;
+        const { data:{ data }} = await axios.get(`${process.env.PAYSTACK_VERIFY_ACCOUNT_URL}?account_number=${accountNumber}&bank_code=${bankCode}`, {
+            headers: {
+                Authorization: `Bearer ${process.env.PAYSTACK_API_KEY}`
+            }
+        }); 
+        return res.status(200).json({
+            message: 'Account successfully verified.',
+            data: {
+                accountName: data.account_name,
+                accountNumber: data.account_number
+            }
+        })
+    } catch (error) {
+        const message = error?.response?.data?.message || error.message;
+        return res.status(400).json({
+            message
+        })
+    }
+}
+
+
 const logout = async(req, res, next) => {
     res.cookie('access-token', '', { maxAge: 1 })
 
@@ -84,4 +110,5 @@ module.exports = {
     registerUser,
     loginUser,
     logout,
+    verifyUserAccount
 }

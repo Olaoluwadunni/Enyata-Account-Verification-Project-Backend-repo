@@ -18,7 +18,7 @@ app.get('/', (req, res) => {
     res.status(200).json({
         status: 'success',
         code: 200,
-        message: 'Welcome to Account Number Verification app',
+        message: 'Welcome to Bank Verification app',
         data: []
     })
 })

@@ -1,7 +1,7 @@
 const express = require('express')
-const { registerUser, loginUser, logout, verifyEmail } = require('../controller')
+const { registerUser, loginUser, logout, verifyEmail, verifyUserAccount } = require('../controller')
 const { validateUser, checkUser } = require('../middleware')
-const { registerUserSchema, loginUserSchema } = require('../validation')
+const { registerUserSchema, loginUserSchema, verifyUserUserSchema } = require('../validation')
 const router = express.Router()
 
 
@@ -16,8 +16,15 @@ router.post(
     '/api/login-user',
     validateUser(loginUserSchema, 'body'),
     checkUser('login'),
-    loginUser,
+    loginUser
 )
+
+router.get(
+    '/verify-account',
+    // checkUser('login'),
+    verifyUserAccount
+)
+
 
 router.get(
     '/api/logout',
